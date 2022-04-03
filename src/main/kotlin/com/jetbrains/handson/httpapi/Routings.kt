@@ -15,19 +15,24 @@ fun Route.Authentication()
             val new_user = call.receive<User>()
             if (!users.contains(new_user)) {
                 users.add(new_user)
+
+                // тут надо отправлять ему токен
+                call.respond(HttpStatusCode.OK)
             }else
                 call.respondText("User with this login has already been registered")
         }
     }
 
-    route("authorization")
+    route("login")
     {
         post{
             val user = call.receive<User>()
             val found_user = users.find { it.login == user.login && it.password == user.password } ?: return@post call.respondText(
                                                                                                  "incorrect username or password",
-                                                                                                      status = HttpStatusCode.NotFound
+                                                                                                      status = HttpStatusCode.Unauthorized
             )
+
+            // тут тоже надо вместе со всем этим отправлять ему токен
             call.respond(found_user)
         }
 
