@@ -3,10 +3,14 @@ package com.jetbrains.handson.httpapi
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class User(val login:String, var password: String, var mail: String?,var path_to_image: String?)
+data class User(val login:String, var password: String, var mail: String?,var name_image: String? = "unknown.svg")
 
 @Serializable
-data class Login_MailOfUser(val login: String, val mail: String)
-val users = mutableListOf<User>()
+data class UpdateMail(val login: String, val mail: String)
+
+
+val users = mutableListOf<User>(
+    User("Admin","toor","")
+)
 
 

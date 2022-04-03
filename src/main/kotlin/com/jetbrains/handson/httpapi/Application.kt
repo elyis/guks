@@ -15,15 +15,29 @@ fun Application.module() {
     {
         gson()
     }
+//    install(Authentication)
+//    {
+//        basic("auth-basic") {
+//            realm = "Access to the '/' path"
+//            validate { credentials ->
+//                if (credentials.name == "Admin" && credentials.password == "toor") {
+//                    UserIdPrincipal(credentials.name)
+//                } else {
+//                    null
+//                }
+//            }
+//        }
+//    }
 
     routing {
         Authentication()
         Catalog()
-        get{
-            val file = File("index.jpeg")
+        get("test")
+        {
+            val file = File("photos/profiles/unknown.svg")
             call.response.header(
                 HttpHeaders.ContentDisposition,
-                ContentDisposition.Attachment.withParameter(ContentDisposition.Parameters.FileName, "index.jpeg")
+                ContentDisposition.Attachment.withParameter(ContentDisposition.Parameters.FileName, "index.png")
                     .toString()
             )
             call.respondFile(file)
