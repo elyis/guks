@@ -23,4 +23,4 @@ val coffee = mutableListOf<ItemFromCatalog>(
     ItemFromCatalog("Кофе с льдом",90,"coffee_with_ice.webp", "кофе с добавлением льда"),
 )
 
-val catalog = mutableMapOf("Чай" to tea, "Кофе" to coffee)
+val catalog = mutableMapOf("tea" to tea, "coffee" to coffee)
