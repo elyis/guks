@@ -3,7 +3,7 @@ package com.jetbrains.handson.httpapi
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class ItemFromCatalog(val item: String, val price: Int, val icon_name: String = "unknown.png", val item_description: String = "No description")
+data class ItemFromCatalog(val item: String, val price: Int, var icon_name: String = "unknown.png", val item_description: String = "No description")
 
 val tea = mutableListOf<ItemFromCatalog>(
     ItemFromCatalog("Белый",90,"white.jpg"),

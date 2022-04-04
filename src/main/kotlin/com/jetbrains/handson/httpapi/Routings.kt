@@ -13,10 +13,21 @@ fun Route.Authentication()
     {
         post {
             val new_user = call.receive<User>()
-            if (!users.contains(new_user)) {
+            var isRepeat = false
+            users.forEach()
+            {
+                if (it.login == new_user.login)
+                {
+                    isRepeat = true
+                    call.respondText("User with this login has already been registered", status = HttpStatusCode.Unauthorized)
+                }
+            }
+
+            if (new_user.name_image == null)
+                new_user.name_image = "unknown.svg"
+
+            if (!isRepeat)
                 users.add(new_user)
-            }else
-                call.respondText("User with this login has already been registered")
         }
     }
 
@@ -31,6 +42,7 @@ fun Route.Authentication()
             call.respond(found_user)
         }
 
+        //Получение фото с профиля пользователя
         get("{login}")
         {
             val login = call.parameters["login"] ?: return@get call.respond(HttpStatusCode.BadRequest)
@@ -77,20 +89,29 @@ fun Route.Catalog()
 {
     route("catalog")
     {
+        post("addCategory/{name_ct}")
+        {
+            val new_category = call.parameters["name_ct"] ?: return@post call.respond(HttpStatusCode.BadRequest)
+            val new_item = call.receive<ItemFromCatalog>()
+            catalog.put(new_category, mutableListOf(new_item))
+        }
+
         //Добавление нового объекта в категорию
         post("add/{category}")
         {
             val category = call.parameters["category"] ?: return@post call.respond(HttpStatusCode.BadRequest)
             val new_item = call.receive<ItemFromCatalog>()
-            if (!catalog[category]?.contains(new_item)!!) {
-                catalog[category]?.add(new_item)
-            } else
-                call.respondText("this category is in the catalog")
-        }
+            var isRepeat = false
 
-        get("all")
-        {
-            call.respond(catalog)
+            catalog[category]?.forEach()
+            {
+                if (it.item == new_item.item) {
+                    isRepeat = true
+                    call.respondText("this item is in the category", status = HttpStatusCode.NotModified)
+                }
+            }
+            if (!isRepeat)
+                catalog[category]?.add(new_item)
         }
 
         get("{category}/{icon_name}")
@@ -111,5 +132,11 @@ fun Route.Catalog()
             }else
                 call.respondText("There is no file with that name", status = HttpStatusCode.NotFound)
         }
+
+        get("all")
+        {
+            call.respond(catalog)
+        }
+
     }
 }
