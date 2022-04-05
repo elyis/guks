@@ -1,4 +1,4 @@
-package com.jetbrains.handson.httpapi
+package com.jetbrains.handson.httpapi.data
 
 import kotlinx.serialization.Serializable
 
@@ -23,4 +23,4 @@ val coffee = mutableListOf<ItemFromCatalog>(
     ItemFromCatalog("Кофе с льдом",90,"coffee_with_ice.webp", "кофе с добавлением льда"),
 )
 
-val catalog = mutableMapOf("tea" to tea, "coffee" to coffee)
+val catalog = mutableMapOf("чай" to tea, "кофе" to coffee)

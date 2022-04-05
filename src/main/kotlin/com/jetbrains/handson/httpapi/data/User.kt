@@ -1,5 +1,3 @@
-package com.jetbrains.handson.httpapi
-
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -12,7 +10,7 @@ data class UpdateMail(val login: String, val mail: String)
 data class OpenUserInformation(val login:String,var mail: String?,var name_image: String?)
 
 val users = mutableListOf<User>(
-    User("root","toor"),
+    User("root","toor", "rootMail", "unknown.svg"),
 )
 
 val accounts = mutableListOf<OpenUserInformation>()
