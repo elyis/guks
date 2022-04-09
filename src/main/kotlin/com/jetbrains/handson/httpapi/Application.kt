@@ -61,26 +61,25 @@ fun Application.module() {
         route("login")
         {
             post{
-                var respondUser = RespondUser()
+                val respondUser: RespondUser
                 val user = call.receive<User>()
-                val found_user = users.find { it.login == user.login && it.password == user.password }  ?: return@post call.respondText(
-                    "incorrect username or password",
-                    status = HttpStatusCode.NotFound
-                )
+                val foundUser = users.find { it.login == user.login && it.password == user.password }
 
-                val isCreate = users.find { it.login == user.login && it.password == user.password }
-                if(isCreate != null) {
+                if(foundUser != null) {
                     val token = JWT.create()
                         .withAudience(audience)
                         .withIssuer(issuer)
-                        .withClaim("login", user.login)
+                        .withClaim("login", foundUser.login)
 //                .withExpiresAt(Date(System.currentTimeMillis() + 60000))
                         .sign(Algorithm.HMAC256(secret))
 
-                    var respondUser = RespondUser(found_user.login,token,found_user.mail as String,found_user.name_image as String)
+                    respondUser = RespondUser(foundUser.login,token,foundUser.mail as String,foundUser.name_image as String)
                     call.respond(respondUser)
                 }else
-                    call.respond(found_user)
+                    call.respondText(
+                        "incorrect username or password",
+                        status = HttpStatusCode.NotFound
+                    )
 
 
             }

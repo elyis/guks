@@ -19,11 +19,11 @@ fun Route.profileSettings()
         get("getIcon/{login}")
         {
             val login = call.parameters["login"] ?: return@get call.respond(HttpStatusCode.BadRequest)
-            val found_user = users.find { it.login == login} ?:  return@get call.respondText(
+            val foundUser = users.find { it.login == login} ?:  return@get call.respondText(
                 "incorrect username or password",
                 status = HttpStatusCode.NotFound
             )
-            val file = File("photos/profiles/${found_user.name_image}")
+            val file = File("src/main/resources/photos/profiles/${foundUser.name_image}")
 
             if(file.exists())
                 call.respondFile(file)
@@ -40,10 +40,10 @@ fun Route.changeProfile()
 {
     route("change")
     {
-        post("mail/{new_main}")
+        post("mail/{new_mail}")
         {
             val user = call.receive<User>()
-            val mail = call.parameters["new_main"] ?: return@post call.respond(HttpStatusCode.BadRequest)
+            val mail = call.parameters["new_mail"] ?: return@post call.respond(HttpStatusCode.BadRequest)
 
             users.forEach()
             {

@@ -15,23 +15,23 @@ fun Route.registrationRoute()
     route("registration")
     {
         post {
-            val new_user = call.receive<User>()
+            val newUser = call.receive<User>()
             var isRepeat = false
             users.forEach()
             {
-                if (it.login == new_user.login)
+                if (it.login == newUser.login)
                     isRepeat = true
             }
 
-            if (new_user.name_image == null)
-                new_user.name_image = "unknown.svg"
+            if (newUser.name_image == null)
+                newUser.name_image = "profile.png"
 
-            if (new_user.mail == null)
-                new_user.mail = "not specified"
+            if (newUser.mail == null)
+                newUser.mail = "not specified"
 
             if (!isRepeat) {
-                users.add(new_user)
-                accounts.add(OpenUserInformation(new_user.login,new_user.mail,new_user.name_image))
+                users.add(newUser)
+                accounts.add(OpenUserInformation(newUser.login,newUser.mail))
                 call.respond(HttpStatusCode.Created)
             }else
                 call.respond(HttpStatusCode(409, "AccountAlreadyExists"))

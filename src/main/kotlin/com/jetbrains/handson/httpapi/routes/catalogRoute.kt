@@ -13,12 +13,11 @@ fun Route.catalogRoute()
 {
     route("catalog")
     {
-
         post("addCategory/{name_ct}")
         {
-            val new_category = call.parameters["name_ct"] ?: return@post call.respond(HttpStatusCode.BadRequest)
-            val new_item = call.receive<ItemFromCatalog>()
-            catalog.put(new_category, mutableListOf(new_item))
+            val newCategory = call.parameters["name_ct"] ?: return@post call.respond(HttpStatusCode.BadRequest)
+            val newItem = call.receive<ItemFromCatalog>()
+            catalog.put(newCategory, mutableListOf(newItem))
             call.respond(HttpStatusCode.Created)
         }
 
@@ -27,16 +26,16 @@ fun Route.catalogRoute()
         post("add/{category}")
         {
             val category = call.parameters["category"] ?: return@post call.respond(HttpStatusCode.BadRequest)
-            val new_item = call.receive<ItemFromCatalog>()
+            val newItem = call.receive<ItemFromCatalog>()
             var isRepeat = false
 
             catalog[category]?.forEach()
             {
-                if (it.item == new_item.item)
+                if (it.item == newItem.item)
                     isRepeat = true
             }
             if (!isRepeat) {
-                catalog[category]?.add(new_item)
+                catalog[category]?.add(newItem)
                 call.respond(HttpStatusCode.Created)
             }
             else {
@@ -48,7 +47,7 @@ fun Route.catalogRoute()
         {
             val ct = call.parameters["category"]    ?:   return@get call.respond(HttpStatusCode.BadRequest)
             val icon = call.parameters["icon_name"] ?:   return@get call.respond(HttpStatusCode.BadRequest)
-            val file = File("photos/iconsCatalog/$ct/$icon")
+            val file = File("src/main/resources/photos/iconsCatalog/$ct/$icon")
 
             if(file.exists())
                 call.respondFile(file)
