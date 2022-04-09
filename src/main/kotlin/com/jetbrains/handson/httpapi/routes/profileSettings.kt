@@ -47,7 +47,7 @@ fun Route.changeProfile()
 
             users.forEach()
             {
-                if (it.login == user.login)
+                if (it.login == user.login && it.password == user.password)
                     it.mail = mail
             }
         }
