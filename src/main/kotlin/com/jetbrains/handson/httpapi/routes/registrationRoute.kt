@@ -1,8 +1,6 @@
 package com.jetbrains.handson.httpapi
 
-import OpenUserInformation
 import User
-import accounts
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.request.*
@@ -31,7 +29,6 @@ fun Route.registrationRoute()
 
             if (!isRepeat) {
                 users.add(newUser)
-                accounts.add(OpenUserInformation(newUser.login,newUser.mail))
                 call.respond(HttpStatusCode.Created)
             }else
                 call.respond(HttpStatusCode(409, "AccountAlreadyExists"))

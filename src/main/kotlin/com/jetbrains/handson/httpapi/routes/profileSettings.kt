@@ -1,7 +1,8 @@
 package com.jetbrains.handson.httpapi
 
-import User
 import io.ktor.application.*
+import io.ktor.auth.*
+import io.ktor.auth.jwt.*
 import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.request.*
@@ -16,9 +17,10 @@ fun Route.profileSettings()
     {
 
         //Получение фото с профиля пользователя
-        get("getIcon/{login}")
+        get("getIcon")
         {
-            val login = call.parameters["login"] ?: return@get call.respond(HttpStatusCode.BadRequest)
+            val principal = call.principal<JWTPrincipal>()
+            val login = principal!!.payload.getClaim("login").asString()
             val foundUser = users.find { it.login == login} ?:  return@get call.respondText(
                 "incorrect username or password",
                 status = HttpStatusCode.NotFound
@@ -40,28 +42,46 @@ fun Route.changeProfile()
 {
     route("change")
     {
-        post("mail/{new_mail}")
+
+        put("mail/{new_mail}")
         {
-            val user = call.receive<User>()
-            val mail = call.parameters["new_mail"] ?: return@post call.respond(HttpStatusCode.BadRequest)
+            val principal = call.principal<JWTPrincipal>()
+            val login = principal!!.payload.getClaim("login").asString()
+            val mail = call.parameters["new_mail"] ?: return@put call.respond(HttpStatusCode.BadRequest)
+            var isFound = false
 
             users.forEach()
             {
-                if (it.login == user.login && it.password == user.password)
+                if (it.login == login) {
                     it.mail = mail
+                    isFound = true
+                    call.respond(HttpStatusCode.OK)
+                }
             }
+
+            if (!isFound)
+                call.respond(HttpStatusCode.NotFound)
         }
 
-        post("icon/new_icon")
+
+        put("icon/{new_icon}")
         {
-            val user = call.receive<User>()
-            val icon = call.parameters["new_icon"] ?: return@post call.respond(HttpStatusCode.BadRequest)
+            val principal = call.principal<JWTPrincipal>()
+            val login = principal!!.payload.getClaim("login").asString()
+            val icon = call.parameters["new_icon"] ?: return@put call.respond(HttpStatusCode.BadRequest)
+            var isFound = false
 
             users.forEach()
             {
-                if (it.login == user.login)
+                if (it.login == login) {
                     it.name_image = icon
+                    isFound = true
+                    call.respond(HttpStatusCode.OK)
+                }
             }
+
+            if (!isFound)
+                call.respond(HttpStatusCode.NotFound)
         }
     }
 }

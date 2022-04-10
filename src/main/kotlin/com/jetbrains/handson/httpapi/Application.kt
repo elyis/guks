@@ -1,7 +1,8 @@
 package com.jetbrains.handson.httpapi
 
+import OpenUserInformation
 import RespondUser
-import User
+import UserAuthorization
 import accounts
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
@@ -56,13 +57,17 @@ fun Application.module() {
     routing {
         get("allLogins")
         {
+            users.forEach()
+            {
+                accounts.add(OpenUserInformation(it.login,it.mail))
+            }
             call.respond(accounts)
         }
         route("login")
         {
             post{
                 val respondUser: RespondUser
-                val user = call.receive<User>()
+                val user = call.receive<UserAuthorization>()
                 val foundUser = users.find { it.login == user.login && it.password == user.password }
 
                 if(foundUser != null) {
