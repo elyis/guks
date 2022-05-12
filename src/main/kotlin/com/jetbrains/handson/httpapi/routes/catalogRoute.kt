@@ -47,7 +47,7 @@ fun Route.catalogRoute()
         {
             val ct = call.parameters["category"]    ?:   return@get call.respond(HttpStatusCode.BadRequest)
             val icon = call.parameters["icon_name"] ?:   return@get call.respond(HttpStatusCode.BadRequest)
-            val file = File("src/main/resources/photos/iconsCatalog/$ct/$icon")
+            val file = File("photos/iconsCatalog/$ct/$icon")
 
             if(file.exists())
                 call.respondFile(file)

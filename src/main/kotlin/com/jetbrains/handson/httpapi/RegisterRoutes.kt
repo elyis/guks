@@ -10,10 +10,10 @@ fun Application.registerRoutes() {
    routing {
 
       authenticate {
-         profileSettings()
-         catalogRoute()
-      }
 
+      }
+      profileSettings()
+      catalogRoute()
       registrationRoute()
 
    }

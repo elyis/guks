@@ -57,11 +57,7 @@ fun Application.module() {
     routing {
         get("allLogins")
         {
-            users.forEach()
-            {
-                accounts.add(OpenUserInformation(it.login,it.mail))
-            }
-            call.respond(accounts)
+            call.respond(users)
         }
         route("login")
         {
@@ -83,7 +79,7 @@ fun Application.module() {
                 }else
                     call.respondText(
                         "incorrect username or password",
-                        status = HttpStatusCode.NotFound
+                        status = HttpStatusCode.Unauthorized
                     )
 
 

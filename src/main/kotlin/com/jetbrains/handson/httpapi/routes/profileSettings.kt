@@ -25,7 +25,7 @@ fun Route.profileSettings()
                 "incorrect username or password",
                 status = HttpStatusCode.NotFound
             )
-            val file = File("src/main/resources/photos/profiles/${foundUser.name_image}")
+            val file = File("photos/profiles/${foundUser.name_image}")
 
             if(file.exists())
                 call.respondFile(file)
