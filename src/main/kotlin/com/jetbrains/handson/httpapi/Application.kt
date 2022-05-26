@@ -1,9 +1,7 @@
 package com.jetbrains.handson.httpapi
 
-import OpenUserInformation
 import RespondUser
 import UserAuthorization
-import accounts
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import io.ktor.application.*
@@ -17,8 +15,11 @@ import io.ktor.response.*
 import io.ktor.routing.*
 import users
 
-fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
+var args = listOf<String>().toTypedArray()
 
+fun main(): Unit = io.ktor.server.netty.EngineMain.main(args)
+
+@Suppress("unused")
 fun Application.module() {
     install(ContentNegotiation)
     {
@@ -55,6 +56,11 @@ fun Application.module() {
     registerRoutes()
 
     routing {
+
+        get("/") {
+            call.respond("Работает")
+        }
+
         get("allLogins")
         {
             call.respond(users)
@@ -81,8 +87,6 @@ fun Application.module() {
                         "incorrect username or password",
                         status = HttpStatusCode.Unauthorized
                     )
-
-
             }
         }
     }
