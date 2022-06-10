@@ -1,9 +1,10 @@
 package com.jetbrains.handson.httpapi
 
-import RespondUser
-import UserAuthorization
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
+import com.jetbrains.handson.httpapi.data.AuthUser
+import com.jetbrains.handson.httpapi.data.User
+import com.jetbrains.handson.httpapi.data.users
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.auth.jwt.*
@@ -13,7 +14,8 @@ import io.ktor.http.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
-import users
+import org.jetbrains.exposed.sql.Database
+
 
 var args = listOf<String>().toTypedArray()
 
@@ -24,6 +26,9 @@ fun Application.module() {
     install(ContentNegotiation)
     {
         gson()
+        {
+
+        }
     }
 
     val secret = environment.config.property("jwt.secret").getString()
@@ -51,42 +56,40 @@ fun Application.module() {
                 }
             }
         }
+
     }
 
-    registerRoutes()
+    Database.connect("jdbc:mysql://localhost:3306/", driver = "com.mysql.cj.jdbc.Driver",
+        user = "root", password = "toor")
 
     routing {
 
-        get("/") {
-            call.respond("Работает")
-        }
-
-        get("allLogins")
+        post("signin")
         {
-            call.respond(users)
-        }
-        route("login")
-        {
-            post{
-                val respondUser: RespondUser
-                val user = call.receive<UserAuthorization>()
-                val foundUser = users.find { it.login == user.login && it.password == user.password }
+            val user = call.receive<User>()
+            val foundUser = users.find { it.login == user.login && it.password == user.password }
 
-                if(foundUser != null) {
-                    val token = JWT.create()
+            if (foundUser != null)
+            {
+                val token = JWT.create()
                         .withAudience(audience)
+                        .withClaim("login",foundUser.login)
                         .withIssuer(issuer)
-                        .withClaim("login", foundUser.login)
-//                .withExpiresAt(Date(System.currentTimeMillis() + 60000))
                         .sign(Algorithm.HMAC256(secret))
 
-                    respondUser = RespondUser(foundUser.login,token,foundUser.mail as String,foundUser.name_image as String)
-                    call.respond(respondUser)
-                }else
-                    call.respondText(
-                        "incorrect username or password",
-                        status = HttpStatusCode.Unauthorized
-                    )
+
+                val authUser = AuthUser(user.login,user.password,token)
+                call.respond(authUser)
+            }
+            else
+                call.respondText("Incorrect login or password",status = HttpStatusCode.Unauthorized)
+        }
+
+        registrationRoute()
+
+        authenticate {
+            get {
+
             }
         }
     }

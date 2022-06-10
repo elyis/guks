@@ -1,37 +1,26 @@
 package com.jetbrains.handson.httpapi
 
-import User
+import com.auth0.jwt.JWT
+import com.jetbrains.handson.httpapi.data.User
+import com.jetbrains.handson.httpapi.data.users
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
-import users
 
 fun Route.registrationRoute()
 {
-    route("registration")
+    post("signup")
     {
-        post {
-            val newUser = call.receive<User>()
-            var isRepeat = false
-            users.forEach()
-            {
-                if (it.login == newUser.login)
-                    isRepeat = true
-            }
+        val user = call.receive<User>()
 
-            if (newUser.name_image == null)
-                newUser.name_image = "profile.png"
-
-            if (newUser.mail == null)
-                newUser.mail = "not specified"
-
-            if (!isRepeat) {
-                users.add(newUser)
-                call.respond(HttpStatusCode.Created)
-            }else
-                call.respond(HttpStatusCode(409, "AccountAlreadyExists"))
-        }
+        if (!users.contains(user))
+        {
+            users.add(user)
+            call.respond(HttpStatusCode.Created)
+        }else
+            call.respond(HttpStatusCode(409,"Account already exist"))
     }
+
 }
