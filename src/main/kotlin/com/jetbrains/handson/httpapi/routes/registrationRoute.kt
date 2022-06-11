@@ -2,25 +2,44 @@ package com.jetbrains.handson.httpapi
 
 import com.auth0.jwt.JWT
 import com.jetbrains.handson.httpapi.data.User
-import com.jetbrains.handson.httpapi.data.users
+import com.jetbrains.handson.httpapi.databases.UserDb
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.transactions.transaction
 
 fun Route.registrationRoute()
 {
     post("signup")
     {
         val user = call.receive<User>()
+        var isUserRegistered = false
 
-        if (!users.contains(user))
+        transaction {
+            UserDb.select { UserDb.login eq user.login }.forEach {
+                isUserRegistered = true
+            }
+        }
+
+        if (!isUserRegistered)
         {
-            users.add(user)
+            transaction {
+                UserDb.insert {
+                    it[login] = user.login
+                    it[password] = user.password
+                }
+            }
+
             call.respond(HttpStatusCode.Created)
         }else
-            call.respond(HttpStatusCode(409,"Account already exist"))
+            call.respond(HttpStatusCode(409,"UserAlreadyRegistered"))
+
     }
 
 }

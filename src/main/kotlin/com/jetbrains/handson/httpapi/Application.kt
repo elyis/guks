@@ -4,7 +4,9 @@ import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.jetbrains.handson.httpapi.data.AuthUser
 import com.jetbrains.handson.httpapi.data.User
-import com.jetbrains.handson.httpapi.data.users
+import com.jetbrains.handson.httpapi.databases.UserDb
+import com.jetbrains.handson.httpapi.databases.UserMessage
+//import com.jetbrains.handson.httpapi.databases.UserMessage
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.auth.jwt.*
@@ -14,7 +16,9 @@ import io.ktor.http.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
-import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.transactions.transaction
 
 
 var args = listOf<String>().toTypedArray()
@@ -59,21 +63,34 @@ fun Application.module() {
 
     }
 
-    Database.connect("jdbc:mysql://localhost:3306/", driver = "com.mysql.cj.jdbc.Driver",
-        user = "root", password = "toor")
+    Database.connect("jdbc:mysql://localhost:3306/mess", driver = "com.mysql.cj.jdbc.Driver",
+        user = "root", password = "root")
+
+    transaction {
+        addLogger(StdOutSqlLogger)
+        SchemaUtils.create(UserDb,UserMessage)
+    }
 
     routing {
 
         post("signin")
         {
             val user = call.receive<User>()
-            val foundUser = users.find { it.login == user.login && it.password == user.password }
 
-            if (foundUser != null)
+            var isFoundUser = false
+            transaction {
+                UserDb.select(UserDb.login eq user.login).forEach { UserIter ->
+                    if (UserIter[UserDb.password] == user.password)
+                        isFoundUser = true
+                }
+            }
+
+
+            if (isFoundUser)
             {
                 val token = JWT.create()
                         .withAudience(audience)
-                        .withClaim("login",foundUser.login)
+                        .withClaim("login",user.login)
                         .withIssuer(issuer)
                         .sign(Algorithm.HMAC256(secret))
 
@@ -88,9 +105,20 @@ fun Application.module() {
         registrationRoute()
 
         authenticate {
-            get {
-
+            get("add")
+            {
+                transaction {
+                    UserMessage.insert {
+                        it[userId] = 2
+                        it[message] = "hello teacher"
+                    }
+                    UserMessage.insert {
+                        it[userId] = 3
+                        it[message] = "hello guys"
+                    }
+                }
             }
         }
+
     }
 }

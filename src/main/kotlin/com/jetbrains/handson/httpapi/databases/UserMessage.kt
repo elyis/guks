@@ -6,7 +6,7 @@ import org.jetbrains.exposed.sql.`java-time`.datetime
 
 object UserMessage : Table()
 {
-    val userId = integer("userId").uniqueIndex().references(User.userId)
+    val userId = integer("userId").references(UserDb.userId)
     val message = varchar("Сообщение",500)
     val sendingTime = datetime("dateCreateMessage").defaultExpression(CurrentDateTime())
 }
