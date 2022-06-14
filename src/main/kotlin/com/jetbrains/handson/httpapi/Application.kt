@@ -7,18 +7,20 @@ import com.jetbrains.handson.httpapi.data.User
 import com.jetbrains.handson.httpapi.databases.UserDb
 import com.jetbrains.handson.httpapi.databases.UserMessage
 //import com.jetbrains.handson.httpapi.databases.UserMessage
-import io.ktor.application.*
-import io.ktor.auth.*
-import io.ktor.auth.jwt.*
-import io.ktor.features.*
-import io.ktor.gson.*
 import io.ktor.http.*
-import io.ktor.request.*
-import io.ktor.response.*
-import io.ktor.routing.*
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
+import io.ktor.serialization.gson.*
+import io.ktor.server.application.*
+import io.ktor.server.auth.*
+import io.ktor.server.auth.jwt.*
+import io.ktor.server.plugins.contentnegotiation.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
+import plugins.configureRoute
+import plugins.configureRouting
 
 
 var args = listOf<String>().toTypedArray()
@@ -27,6 +29,8 @@ fun main(): Unit = io.ktor.server.netty.EngineMain.main(args)
 
 @Suppress("unused")
 fun Application.module() {
+
+    configureRouting()
     install(ContentNegotiation)
     {
         gson()
@@ -34,6 +38,8 @@ fun Application.module() {
 
         }
     }
+
+
 
     val secret = environment.config.property("jwt.secret").getString()
     val issuer = environment.config.property("jwt.issuer").getString()
@@ -105,19 +111,7 @@ fun Application.module() {
         registrationRoute()
 
         authenticate {
-            get("add")
-            {
-                transaction {
-                    UserMessage.insert {
-                        it[userId] = 2
-                        it[message] = "hello teacher"
-                    }
-                    UserMessage.insert {
-                        it[userId] = 3
-                        it[message] = "hello guys"
-                    }
-                }
-            }
+            configureRoute()
         }
 
     }
